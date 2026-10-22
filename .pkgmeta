@@ -1,0 +1,31 @@
+# BigWigs packager manifest (.github/workflows/addon-release.yml). The packager needs the
+# git checkout as its top directory, so this file lives at the repository root: it copies
+# the checkout, drops everything that is not the addon, and moves addon/FairShare up to be
+# the package itself. The zip holds one folder, FairShare/, with the TOC at its root. The
+# backend, the sync client, the tests and the docs never enter it.
+package-as: FairShare
+
+move-folders:
+  FairShare/addon/FairShare: FairShare
+
+ignore:
+  - .github
+  - backend
+  - client
+  - docs
+  - tests
+  - tools
+  - go.mod
+  - go.sum
+  - README.md
+  - CONTRIBUTING.md
+  - LICENSE
+  - THIRD_PARTY_NOTICES.md
+  - .editorconfig
+  - .env.example
+  - .gitattributes
+  - .gitignore
+  - .pkgmeta
+  - addon/README.md
+  - addon/FairShare/README.md
+  - addon/FairShare/Data.lua

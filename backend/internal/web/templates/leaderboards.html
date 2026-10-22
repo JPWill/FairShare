@@ -1,0 +1,18 @@
+{{define "content"}}{{with .Data}}
+<h1>Leaderboards</h1>
+<p class="lead">Worked out from the ledger every time this page loads, so they are always current.</p>
+
+<div class="boards">{{range .Boards}}{{template "board" .}}{{end}}
+  <section class="board">
+    <h3>Top performers</h3>
+    {{if .Performers}}<ol>{{range .Performers}}<li>{{template "player" .Player}}{{if .Player.Char}} <span class="muted">- {{.Player.Char}}</span>{{end}}<span class="v">{{.Value}}</span><span class="sub">{{.Extra}}</span></li>{{end}}</ol>
+    {{else}}<p class="empty">No performance scores yet.</p>{{end}}
+    <p class="note">Average Warcraft Logs percentile over scored raids. Scoring starts once Warcraft Logs supports Forever.</p>
+  </section>
+</div>
+
+<section>
+  <h2>Biggest purchases</h2>
+  {{if .Biggest}}{{template "loottable" (dict "Rows" .Biggest)}}{{else}}<p class="empty">No loot sold yet.</p>{{end}}
+</section>
+{{end}}{{end}}

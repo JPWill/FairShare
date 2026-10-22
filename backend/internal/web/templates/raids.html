@@ -1,0 +1,6 @@
+{{define "content"}}{{with .Data}}
+<h1>Raids</h1>
+<p class="lead">Every raid the bot has opened, newest first. Results appear once a raid is settled; a raid in progress shows what the leader's last live update holds.</p>
+{{if .Raids.Rows}}{{template "raidtable" .Raids}}{{template "pager" .Pager}}
+{{else}}<p class="empty">No raids yet.</p>{{end}}
+{{end}}{{end}}

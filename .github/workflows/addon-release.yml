@@ -1,0 +1,73 @@
+# Packages addon/FairShare and uploads it to CurseForge (and WoWInterface and Wago when
+# their ids and tokens exist) and to a GitHub release, from one annotated tag:
+#
+#   git tag -a v0.1.0 -m "FairShare 0.1.0" && git push origin v0.1.0
+#
+# Addon tags are plain v*; the sync client uses client-v* and the backend backend-v*.
+# The packager reads the project ids from the TOC (X-Curse-Project-ID, X-WoWI-ID,
+# X-Wago-ID) and writes the change log from the commits since the previous tag, which
+# CurseForge requires on every file. The packager needs the git checkout as its top
+# directory, so the root .pkgmeta drops everything but addon/FairShare and moves that
+# folder up to be the package.
+#
+# Secrets (Settings → Secrets and variables → Actions): CF_API_KEY from
+# https://authors.curseforge.com/#/settings/api-tokens; WOWI_API_TOKEN and WAGO_API_TOKEN
+# when those projects exist. GITHUB_TOKEN is provided; the repository's Actions setting
+# "Workflow permissions" must be "Read and write" for the GitHub release.
+#
+# Run it by hand from the Actions tab with "dry run" ticked to build the zip without
+# uploading anywhere; the zip is attached to the run as an artifact.
+name: addon-release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build only; upload nothing"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      # The packager has used both spellings across versions; set both from one secret.
+      CF_API_KEY: ${{ secrets.CF_API_KEY }}
+      CF_API_TOKEN: ${{ secrets.CF_API_KEY }}
+      WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+      WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+      GH_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0 # full history: the change log is the commits since the previous tag
+
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version-file: go.mod # the toolchain line pins the patch release with the security fixes
+
+      - name: Offline addon tests
+        run: cd tests/addon && go test ./...
+
+      - name: Release directory
+        run: mkdir -p dist # the packager resolves -r with cd, so it must already exist
+
+      - name: Package and upload
+        uses: BigWigsMods/packager@90e603be6bcdeff99fb7061105a36b829fa70970 # v2
+        with:
+          # -r dist: write the package under dist/ rather than the default .release/, because
+          # upload-artifact skips hidden (dot) directories unless told otherwise.
+          args: -r ./dist ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '-d' || '' }}
+
+      - name: Keep the zip
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: FairShare-addon
+          path: dist/*.zip
+          if-no-files-found: error

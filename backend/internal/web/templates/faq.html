@@ -1,0 +1,22 @@
+{{define "content"}}{{with .Data}}
+<section class="faq">
+<h1>How It Works</h1>
+<p class="lead wide">Every boss kill belongs to everyone who was there. Loot is auctioned for <strong>shares</strong>, the community's own points, and what the winner pays is split across the raid. The numbers on this page are read from the live settings.</p>
+
+<div class="minute">
+  <h2>In one minute</h2>
+  <ul>{{range .Summary}}<li>{{markdownBold .}}</li>{{end}}</ul>
+  <p class="cta">{{if $.Discord}}<a class="btn" href="{{$.Discord}}" rel="noopener">Join us on Discord</a> {{end}}<a class="btn alt" href="/rules">The rules</a></p>
+</div>
+
+{{range .Sections}}
+<h2>{{.Title}}</h2>
+<div class="faq-grid">
+  {{range .Items}}<article class="faq-card" id="{{.ID}}">
+    <h3>{{.Q}}</h3>
+    <p>{{linkify .A}}</p>
+  </article>{{end}}
+</div>
+{{end}}
+</section>
+{{end}}{{end}}

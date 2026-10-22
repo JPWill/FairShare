@@ -1,0 +1,9 @@
+{{define "content"}}{{with .Data}}
+<section class="rules-page">
+<h1>The Rules</h1>
+<p class="lead wide">{{markdownBold .Intro}}</p>
+<ol class="rules">{{range .Rules}}<li>{{markdownBold .}}</li>{{end}}</ol>
+<p class="outro">{{.Outro}}</p>
+<p class="cta">{{if $.Discord}}<a class="btn" href="{{$.Discord}}" rel="noopener">Join us on Discord</a> {{end}}<a class="btn alt" href="/faq">How It Works</a></p>
+</section>
+{{end}}{{end}}

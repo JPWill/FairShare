@@ -1,0 +1,53 @@
+# Builds the sync client for Windows when a client tag is pushed and attaches the
+# executable plus its SHA-256 sum to a GitHub release. Leaders verify the sum before
+# running a download; nothing in the binary is secret, the token lives in config.json.
+#
+#   git tag client-v0.1.0 && git push origin client-v0.1.0
+name: client-release
+
+on:
+  push:
+    tags:
+      - "client-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version-file: go.mod # the toolchain line pins the patch release with the security fixes
+
+      - name: Test
+        run: go test ./client/... ./backend/...
+
+      - name: Build fairshare-sync.exe
+        env:
+          GOOS: windows
+          GOARCH: amd64
+          CGO_ENABLED: "0"
+        run: |
+          mkdir -p dist
+          cp LICENSE THIRD_PARTY_NOTICES.md dist/
+          go build -trimpath -ldflags="-s -w -X main.version=${GITHUB_REF_NAME}" -o dist/fairshare-sync.exe ./client/cmd/fairshare-sync
+
+      - name: Checksums
+        run: |
+          cd dist
+          sha256sum fairshare-sync.exe > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Release
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        with:
+          files: |
+            dist/fairshare-sync.exe
+            dist/SHA256SUMS
+            dist/LICENSE
+            dist/THIRD_PARTY_NOTICES.md
+          generate_release_notes: true

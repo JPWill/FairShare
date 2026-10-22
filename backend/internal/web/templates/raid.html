@@ -1,0 +1,71 @@
+{{define "content"}}{{with .Data}}
+<p class="crumb"><a href="/raids">Raids</a></p>
+<h1>{{.Title}} <span class="badge s-{{.Status}}">{{statusLabel .Status}}</span></h1>
+<p class="lead">{{date .Date}}{{if .Leader.Name}}, led by {{template "player" .Leader}}{{end}}.</p>
+
+{{if .Live}}<p class="notice">Live: this is the leader's update from {{dateTime .LiveAt}}. Nothing is final until the raid is settled.</p>
+{{else if eq .Status "issued" "in_progress"}}<p class="notice">This raid has not sent anything yet. It fills in as the leader reloads in game.</p>
+{{else if eq .Status "contested"}}<p class="notice">A later upload disagreed with this raid's record, so officers are reviewing it. The results below stand until they decide.</p>
+{{else if eq .Status "disputed"}}<p class="notice">This raid's record needs an officer before it can settle.</p>{{end}}
+
+<div class="tiles">
+  <div class="tile"><span class="k">Raiders</span><span class="v">{{.Attendees}}</span></div>
+  <div class="tile"><span class="k">Bosses</span><span class="v">{{.Kills}}</span></div>
+  <div class="tile"><span class="k">Items won</span><span class="v">{{.Items}}</span></div>
+  <div class="tile"><span class="k">Shares spent</span><span class="v">{{.Spent}}</span></div>
+</div>
+
+{{if .Bosses}}
+<section>
+  <h2>Bosses</h2>
+  <ol class="kills">{{range .Bosses}}<li><span>{{.Name}}</span><span class="muted">{{.Present}} {{plural .Present "raider" "raiders"}}</span></li>{{end}}</ol>
+</section>
+{{end}}
+
+<section>
+  <h2>Loot</h2>
+  {{if .Auctions}}
+  <div class="scroll"><table>
+    <thead><tr><th class="n">#</th><th>Item</th><th>Result</th><th>Won by</th><th class="n">Price</th><th>Bids</th></tr></thead>
+    <tbody>
+    {{range .Auctions}}<tr{{if .Test}} class="dim"{{end}}>
+      <td class="n">{{.Number}}</td>
+      <td>{{template "item" .Item}}{{if .Test}} <span class="muted">test</span>{{end}}</td>
+      <td><span class="badge r-{{.Status}}">{{.Status}}</span></td>
+      <td>{{if .Winner.Name}}{{template "player" .Winner}}{{end}}{{if .Transferred.Name}} <span class="muted">to</span> {{template "player" .Transferred}}{{end}}</td>
+      <td class="n">{{if .Winner.Name}}{{.Price}}{{end}}</td>
+      <td>{{if .Bids}}<details><summary>{{len .Bids}} {{plural (len .Bids) "bid" "bids"}}</summary><ul class="bids">{{range .Bids}}<li>{{template "player" .Player}}<span class="v">{{.Bid}}</span>{{if .Offspec}} <span class="muted">off-spec</span>{{end}}</li>{{end}}</ul></details>{{else}}<span class="muted">none</span>{{end}}</td>
+    </tr>{{end}}
+    </tbody>
+  </table></div>
+  <p class="note">The winner pays the second-highest bid, or the minimum price when nobody else bid. Test auctions check that everyone's addon works and are never settled.</p>
+  {{else}}<p class="empty">No auctions yet.</p>{{end}}
+</section>
+
+<section>
+  <h2>Raiders</h2>
+  {{if .Attendance}}
+  <div class="scroll"><table>
+    <thead><tr><th>Raider</th><th class="n">Bosses</th><th>Run</th>{{if not .Live}}<th class="n">Shares this raid</th>{{end}}</tr></thead>
+    <tbody>
+    {{$live := .Live}}{{range .Attendance}}<tr>
+      <td>{{template "player" .Player}}{{if .Characters}} <span class="muted">on</span> {{template "chars" .Characters}}{{end}}</td>
+      <td class="n">{{.Kills}}</td>
+      <td>{{if .Standby}}<span class="muted">Standby</span>{{else if .FullRun}}Full run{{else}}<span class="muted">Part</span>{{end}}</td>
+      {{if not $live}}<td class="n {{sign .Net}}">{{signed .Net}}</td>{{end}}
+    </tr>{{end}}
+    </tbody>
+  </table></div>
+  {{else}}<p class="empty">Nobody recorded yet.</p>{{end}}
+</section>
+
+{{if .Performance}}
+<section>
+  <h2>Performance</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Raider</th><th>Spec</th><th class="n">Percentile</th><th>Band</th><th class="n">Award</th></tr></thead>
+    <tbody>{{range .Performance}}<tr><td>{{template "player" .Player}}</td><td>{{.Spec}}</td><td class="n">{{pct .Percentile}}</td><td>{{.Band}}</td><td class="n">{{.Award}}</td></tr>{{end}}</tbody>
+  </table></div>
+</section>
+{{end}}
+{{end}}{{end}}

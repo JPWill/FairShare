@@ -1,0 +1,70 @@
+# --- OS / editor ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.swp
+*~
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+
+# --- Secrets / local config ---
+.env
+.env.*
+!.env.example
+*.secret
+config.local.*
+
+# --- Addon ---
+# Written by the sync client, never committed (holds the live snapshot).
+addon/FairShare/Data.lua
+# Packaged releases
+dist/
+.release/
+*.zip
+
+# --- Lua test harness output ---
+tools/harness/out/
+*.luac
+
+# --- Go ---
+backend/bin/
+client/bin/
+*.exe
+*.test
+*.out
+coverage.*
+
+# --- Rust (in case any tool ends up in Rust) ---
+target/
+Cargo.lock.bak
+
+# --- Databases / runtime data ---
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+data/
+logs/
+
+# --- Private notes (marketing, plans) ---
+/private/
+
+# --- Claude Code local settings ---
+.claude/
+
+# --- Sync client local files (written to %APPDATA%\FairShare, never here) ---
+config.json
+uploads.json
+
+# --- Game data that must never be committed ---
+WTF/
+SavedVariables/
+
+# --- Personal notes (James only, never published) ---
+private/
+CLAUDE.md
+docs/launch-timeline.md

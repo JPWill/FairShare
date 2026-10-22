@@ -1,0 +1,67 @@
+## Interface: 120105, 16001
+# 120105 = Midnight 12.1.5 (retail, used for early testing); 16001 = Forever beta. Add the live Forever build when it ships.
+## Title: FairShare
+## Notes: Sealed-bid loot shares for PUG raids. Every raider verifies every auction.
+## Author: Jaemz
+## Version: 0.1.0
+## SavedVariables: FairShareDB
+## IconTexture: Interface\AddOns\FairShare\Media\icon
+## AddonCompartmentFunc: FairShare_OnCompartmentClick
+## X-Website: https://fairsharewow.com
+## X-License: MIT
+## X-Category: Raid
+# Addon site project ids, read by the release workflow (.github/workflows/addon-release.yml).
+# Uncomment each line and fill in the id once that site's project exists; a missing id just
+# means no upload there.
+## X-Curse-Project-ID: 1760373
+# ## X-WoWI-ID: 0
+# ## X-Wago-ID: 0
+
+# Load order matters. Lib/ has no dependencies; Core/ builds on Lib/; features build on Core/; UI last.
+# No slash commands: the window opens from the minimap button, the addon compartment, or a keybinding (Bindings.xml).
+
+# --- In-house library code (no third-party code anywhere in this addon) ---
+Lib/Bit.lua
+Lib/Sha256.lua
+Lib/Base64.lua
+Lib/Serialize.lua
+
+# --- Core ---
+Core/Init.lua
+Core/Events.lua
+Core/Timer.lua
+Core/Comm.lua
+Core/DB.lua
+Core/Group.lua
+Core/Ping.lua
+Core/Launcher.lua
+
+# --- Features ---
+Snapshot/Snapshot.lua
+Snapshot/Broadcast.lua
+Snapshot/Roster.lua
+Auction/State.lua
+Auction/Protocol.lua
+Transcript/Transcript.lua
+Auction/Book.lua
+Auction/Queue.lua
+Auction/Trade.lua
+Auction/Lead.lua
+Dev/Sim.lua
+
+# --- UI ---
+UI/Skin.lua
+UI/Widgets.lua
+UI/Main.lua
+UI/Home.lua
+UI/Ledger.lua
+UI/Bid.lua
+UI/Transcript.lua
+UI/Raid.lua
+UI/Roster.lua
+UI/Loot.lua
+UI/Settings.lua
+UI/Dev.lua
+
+# --- Written by the sync client. Optional; absent until the client has run. Gitignored, excluded from release zips. ---
+Data.lua

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{if .Title}}{{.Title}} - {{end}}FairShare</title>
+<link rel="icon" type="image/png" href="/static/icon.png">
+<link rel="stylesheet" href="/static/site.css">
+<script src="/static/filter.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-inner">
+    <a class="brand" href="/"><img src="/static/icon.png" alt="" width="34" height="34"><span>FairShare</span></a>
+    <nav>
+      <a href="/raids"{{if eq .Nav "raids"}} class="on"{{end}}>Raids</a>
+      <a href="/loot"{{if eq .Nav "loot"}} class="on"{{end}}>Loot</a>
+      <a href="/leaderboards"{{if eq .Nav "leaderboards"}} class="on"{{end}}>Leaderboards</a>
+      <a href="/players"{{if eq .Nav "players"}} class="on"{{end}}>Players</a>
+      <a href="/faq"{{if eq .Nav "faq"}} class="on"{{end}}>How It Works</a>
+      <a href="/rules"{{if eq .Nav "rules"}} class="on"{{end}}>Rules</a>
+      {{if .Discord}}<a class="discord" href="{{.Discord}}" rel="noopener">Discord</a>{{end}}
+    </nav>
+  </div>
+</header>
+{{if .Demo}}<div class="banner demo"><div class="wrap"><strong>Demo.</strong> Every raider, raid and item here is made up, to show what the site looks like after a few weeks of raiding. The real ledger starts empty at launch.</div></div>
+{{else if .Sandbox}}<div class="banner"><div class="wrap">Sandbox mode is on in the bot: this site is showing its test data, not the live ledger.</div></div>{{end}}
+<main class="wrap">
+{{template "content" .}}
+</main>
+<footer class="wrap">
+  <div class="foot-grid">
+    <div>
+      <h4>Community</h4>
+      {{if .Discord}}<a href="{{.Discord}}" rel="noopener">Join us on Discord</a>{{end}}
+      <a href="/faq">How It Works</a>
+      <a href="/rules">The rules</a>
+      <a href="/leaderboards">Leaderboards</a>
+    </div>
+    <div>
+      <h4>Software</h4>
+      <a href="{{.Repo}}/releases" rel="noopener">Download the addon and sync client</a>
+      <a href="{{.Repo}}" rel="noopener">Source code on GitHub</a>
+      <a href="{{.Repo}}/blob/main/docs/protocol.md" rel="noopener">How auctions are verified</a>
+      <a href="{{.Repo}}/issues" rel="noopener">Report a problem</a>
+    </div>
+    <div>
+      <h4>This site</h4>
+      <p>Read from the FairShare ledger on every visit. Every share spent on loot is paid out to the raid that earned it. No login, no tracking; one small script to filter tables as you type.</p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
+
+{{/* player is a person's display name, plain, linking to their page. Characters, not players, get class colours (see chars). */}}
+{{define "player"}}{{if .Char}}<a class="pl" href="{{playerURL .Char}}" title="{{.Char}}">{{.Name}}</a>{{else}}<span class="pl">{{.Name}}</span>{{end}}{{end}}
+
+{{define "item"}}{{with item .}}<span class="item {{qualityClass .Color}}">[{{.Name}}]</span>{{end}}{{end}}
+
+{{/* chars lists the characters a person attended on, in order: "Main, then Alt". */}}
+{{define "chars"}}{{range $i, $c := .}}{{if $i}}<span class="muted">, then</span> {{end}}<span class="{{classClass $c.Class}}">{{$c.Char}}</span>{{end}}{{end}}
+
+{{define "pager"}}{{if or .HasPrev .HasNext}}<p class="pager">
+{{if .HasPrev}}<a href="?page={{add .Page -1}}{{if .Query}}&amp;q={{.Query}}{{end}}{{sortQuery .Sort}}">Newer</a>{{end}}
+<span>Page {{.Page}}</span>
+{{if .HasNext}}<a href="?page={{add .Page 1}}{{if .Query}}&amp;q={{.Query}}{{end}}{{sortQuery .Sort}}">Older</a>{{end}}
+</p>{{end}}{{end}}
+
+{{/* th is one column header. T is the table (Rows, and Sort/Path/Q when sortable), K the
+     sort key, L the label, D the direction a first click uses, N true for a number column.
+     Without a Path the header is plain text: the front page's previews are not sortable. */}}
+{{define "th"}}<th{{if .N}} class="n"{{end}}>{{if .T.Path}}<a class="{{sortClass .K .T.Sort}}" href="{{sortURL .T.Path .K .D .T.Sort .T.Q}}">{{.L}}</a>{{else}}{{.L}}{{end}}</th>{{end}}
+
+{{define "raidtable"}}
+<div class="scroll"><table>
+  <thead><tr>
+    {{template "th" (dict "T" . "K" "date" "L" "Date" "D" "desc")}}
+    {{template "th" (dict "T" . "K" "raid" "L" "Raid" "D" "asc")}}
+    {{template "th" (dict "T" . "K" "leader" "L" "Leader" "D" "asc")}}
+    {{template "th" (dict "T" . "K" "status" "L" "Status" "D" "asc")}}
+    {{template "th" (dict "T" . "K" "raiders" "L" "Raiders" "D" "desc" "N" true)}}
+    {{template "th" (dict "T" . "K" "bosses" "L" "Bosses" "D" "desc" "N" true)}}
+    {{template "th" (dict "T" . "K" "items" "L" "Items" "D" "desc" "N" true)}}
+    {{template "th" (dict "T" . "K" "spent" "L" "Shares spent" "D" "desc" "N" true)}}
+  </tr></thead>
+  <tbody>
+  {{range .Rows}}<tr>
+    <td class="nowrap">{{date .Date}}</td>
+    <td><a href="/raids/{{.ID}}">{{.Title}}</a></td>
+    <td>{{template "player" .Leader}}</td>
+    <td><span class="badge s-{{.Status}}">{{statusLabel .Status}}</span></td>
+    {{if eq .Status "issued" "in_progress"}}<td class="n muted" colspan="4">open: see the raid</td>
+    {{else}}<td class="n">{{.Attendees}}</td><td class="n">{{.Kills}}</td><td class="n">{{.Items}}</td><td class="n">{{.Spent}}</td>{{end}}
+  </tr>{{end}}
+  </tbody>
+</table></div>
+{{end}}
+
+{{define "loottable"}}
+<div class="scroll"><table>
+  <thead><tr>
+    {{template "th" (dict "T" . "K" "date" "L" "Date" "D" "desc")}}
+    {{template "th" (dict "T" . "K" "raid" "L" "Raid" "D" "asc")}}
+    {{template "th" (dict "T" . "K" "item" "L" "Item" "D" "asc")}}
+    {{if eq .Mode "character"}}<th>Character</th>{{else}}{{template "th" (dict "T" . "K" "player" "L" "Player" "D" "asc")}}
+    {{template "th" (dict "T" . "K" "character" "L" "Character" "D" "asc")}}{{end}}
+    {{template "th" (dict "T" . "K" "price" "L" "Price" "D" "desc" "N" true)}}
+    <th class="n">Bids</th>
+  </tr></thead>
+  <tbody>
+  {{range .Rows}}<tr>
+    <td class="nowrap">{{date .Date}}</td>
+    <td><a href="/raids/{{.RaidID}}">{{.Raid}}</a></td>
+    <td>{{template "item" .Item}}</td>
+    {{if ne $.Mode "character"}}<td>{{template "player" .Owner}}</td>{{end}}
+    <td><span class="{{classClass .Owner.Class}}">{{.Owner.Char}}</span>{{if .Transferred}} <span class="muted">(transferred)</span>{{end}}</td>
+    <td class="n">{{.Price}}</td><td class="n">{{.Bids}}</td>
+  </tr>{{end}}
+  </tbody>
+</table></div>
+{{end}}
+
+{{define "board"}}
+<section class="board">
+  <h3>{{.Title}}</h3>
+  {{if .Rows}}<ol>{{range .Rows}}<li>{{template "player" .Player}}{{if .Player.Char}} <span class="muted">- {{.Player.Char}}</span>{{end}}<span class="v">{{.Value}}</span></li>{{end}}</ol>
+  {{else}}<p class="empty">Nobody yet.</p>{{end}}
+  {{if .Note}}<p class="note">{{.Note}}</p>{{end}}
+</section>
+{{end}}

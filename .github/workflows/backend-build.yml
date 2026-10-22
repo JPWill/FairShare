@@ -1,0 +1,82 @@
+# Builds the Linux backend on every push to main and publishes it as the rolling
+# "backend-latest" release, so the VM can install a new build with one command:
+#
+#   sudo fairshare-update            # newest build from main
+#   sudo fairshare-update backend-v1.2.0   # a tagged build (push a backend-v* tag)
+#
+# No secrets are involved: the repo is public and the bundle holds only the binary, the
+# class/role emoji and the install scripts. .env never leaves the VM.
+name: backend-build
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["backend-v*"]
+    paths:
+      - "backend/**"
+      - "tools/deploy/**"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/backend-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: backend-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version-file: go.mod # the toolchain line pins the patch release with the security fixes
+
+      - name: Test
+        run: go test ./backend/...
+
+      - name: Build and bundle
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          CGO_ENABLED: "0"
+        run: |
+          set -eu
+          stage=$(mktemp -d)
+          go build -trimpath -ldflags="-s -w -X main.version=${GITHUB_REF_NAME}-${GITHUB_SHA::8}" -o "$stage/fairshare" ./backend/cmd/fairshare
+          mkdir -p "$stage/emoji"
+          cp backend/assets/emoji/*.png "$stage/emoji/"
+          cp tools/deploy/install.sh tools/deploy/update.sh "$stage/"
+          mkdir -p dist
+          tar -czf dist/fairshare-backend-linux-amd64.tar.gz -C "$stage" fairshare emoji install.sh update.sh
+          cd dist && sha256sum fairshare-backend-linux-amd64.tar.gz > SHA256SUMS && cat SHA256SUMS
+
+      - name: Release tag
+        id: tag
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/backend-v* ]]; then
+            echo "name=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          else
+            # Move the rolling tag to this commit so the release page shows what it holds.
+            git tag -f backend-latest
+            git push -f origin backend-latest
+            echo "name=backend-latest" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Release
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        with:
+          tag_name: ${{ steps.tag.outputs.name }}
+          name: "${{ steps.tag.outputs.name == 'backend-latest' && 'Backend latest build from main' || steps.tag.outputs.name }}"
+          prerelease: ${{ steps.tag.outputs.prerelease }}
+          body: "Built from ${{ github.sha }}. Install on the VM with `sudo fairshare-update${{ steps.tag.outputs.name != 'backend-latest' && format(' {0}', steps.tag.outputs.name) || '' }}`."
+          files: |
+            dist/fairshare-backend-linux-amd64.tar.gz
+            dist/SHA256SUMS

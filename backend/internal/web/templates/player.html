@@ -1,0 +1,62 @@
+{{define "content"}}{{with .Data}}
+<p class="crumb"><a href="/players">Players</a></p>
+<h1>{{.Player.Name}}</h1>
+<p class="chars">{{range .Characters}}<span class="chip {{classClass .Class}}">{{.Char}}{{if .Class}} <span class="muted">{{.Class}}</span>{{end}}</span>{{end}}</p>
+
+<div class="tiles">
+  <div class="tile"><span class="k">Balance</span><span class="v {{sign .Balance}}">{{.Balance}}</span></div>
+  <div class="tile"><span class="k">Can bid up to</span><span class="v">{{.MaxBid}}</span><span class="s">balance plus {{.Credit}} credit</span></div>
+  <div class="tile"><span class="k">Raids</span><span class="v">{{.Raids}}</span></div>
+  <div class="tile"><span class="k">Lifetime earned</span><span class="v">{{.Earned}}</span><span class="s">from sales and awards; minus {{.Spent}} spent = balance</span></div>
+  <div class="tile"><span class="k">Items won</span><span class="v">{{.ItemsWon}}</span><span class="s">{{.Spent}} shares spent</span></div>
+  <div class="tile"><span class="k">Boss kills</span><span class="v">{{.Lifetime}}</span><span class="s">plus a bonus per full run; decides invite priority</span></div>
+  {{if .Performance}}<div class="tile"><span class="k">Average percentile</span><span class="v">{{pct .AvgPct}}</span></div>{{end}}
+</div>
+
+<section>
+  <h2>Raid history</h2>
+  {{if .History}}
+  <div class="scroll"><table>
+    <thead><tr><th>Date</th><th>Raid</th><th>Character</th><th class="n">Bosses</th><th>Run</th><th class="n">Shares</th></tr></thead>
+    <tbody>{{range .History}}<tr>
+      <td class="nowrap">{{date .Date}}</td><td><a href="/raids/{{.RaidID}}">{{.Title}}</a></td>
+      <td>{{template "chars" .Characters}}</td><td class="n">{{.Kills}}</td>
+      <td>{{if .Standby}}<span class="muted">Standby</span>{{else if .FullRun}}Full run{{else}}<span class="muted">Part</span>{{end}}</td>
+      <td class="n {{sign .Net}}">{{signed .Net}}</td>
+    </tr>{{end}}</tbody>
+  </table></div>
+  {{else}}<p class="empty">No settled raids yet.</p>{{end}}
+</section>
+
+<section>
+  <h2>Loot won</h2>
+  {{if .Loot}}{{template "loottable" (dict "Rows" .Loot "Mode" "character")}}{{else}}<p class="empty">Nothing won yet.</p>{{end}}
+</section>
+
+{{if .Performance}}
+<section>
+  <h2>Performance</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Date</th><th>Raid</th><th>Character</th><th>Spec</th><th class="n">Percentile</th><th>Band</th><th class="n">Award</th></tr></thead>
+    <tbody>{{range .Performance}}<tr><td class="nowrap">{{date .Date}}</td><td><a href="/raids/{{.Raid}}">{{.RaidTitle}}</a></td><td><span class="{{classClass .Character.Class}}">{{.Character.Char}}</span></td><td>{{.Spec}}</td><td class="n">{{pct .Percentile}}</td><td>{{.Band}}</td><td class="n">{{.Award}}</td></tr>{{end}}</tbody>
+  </table></div>
+</section>
+{{end}}
+
+<section>
+  <h2>Ledger</h2>
+  {{if .Ledger}}
+  <div class="scroll"><table>
+    <thead><tr><th>When</th><th>Raid</th><th>What</th><th>Character</th><th class="n">Shares</th></tr></thead>
+    <tbody>{{range .Ledger}}<tr>
+      <td class="nowrap">{{dateTime .At}}</td>
+      <td>{{if .RaidID}}<a href="/raids/{{.RaidID}}">Raid {{.RaidID}}</a>{{end}}</td>
+      <td>{{reasonLabel .Reason}}</td>
+      <td>{{if .Character.Char}}<span class="{{classClass .Character.Class}}">{{.Character.Char}}</span>{{end}}</td>
+      <td class="n {{sign .Delta}}">{{signed .Delta}}</td>
+    </tr>{{end}}</tbody>
+  </table></div>
+  <p class="note">The newest 100 entries. Shares from boss kills count toward "shares earned" and invite priority; the balance moves only with loot.</p>
+  {{else}}<p class="empty">No ledger entries yet.</p>{{end}}
+</section>
+{{end}}{{end}}

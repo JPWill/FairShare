@@ -1,0 +1,31 @@
+{{define "content"}}{{with .Data}}
+<h1>Players</h1>
+<p class="lead">Everyone registered with the bot. Open a player for their raids, loot and ledger.</p>
+
+<form class="search" method="get" action="/players">
+  <label for="q">Search by name or character</label>
+  <div><input id="q" name="q" type="search" value="{{.Q}}" maxlength="40"><button type="submit">Search</button>{{if .Q}} <a href="/players">Clear</a>{{end}}</div>
+</form>
+
+{{if .Players}}
+<div class="scroll"><table>
+  {{$t := dict "Sort" $.Data.Sort "Path" "/players" "Q" .Q}}
+  <thead><tr>
+    {{template "th" (dict "T" $t "K" "player" "L" "Player" "D" "asc")}}
+    <th>Characters</th>
+    {{template "th" (dict "T" $t "K" "raids" "L" "Raids" "D" "desc" "N" true)}}
+    {{template "th" (dict "T" $t "K" "earned" "L" "Lifetime earned" "D" "desc" "N" true)}}
+    {{template "th" (dict "T" $t "K" "kills" "L" "Boss kills" "D" "desc" "N" true)}}
+    {{template "th" (dict "T" $t "K" "balance" "L" "Balance" "D" "desc" "N" true)}}
+  </tr></thead>
+  <tbody>
+  {{range .Players}}<tr>
+    <td>{{template "player" .Player}}</td>
+    <td>{{range $i, $c := .Characters}}{{if $i}}, {{end}}<span class="{{classClass $c.Class}}">{{$c.Char}}</span>{{end}}</td>
+    <td class="n">{{.Raids}}</td><td class="n">{{.Earned}}</td><td class="n">{{.Lifetime}}</td><td class="n {{sign .Balance}}">{{.Balance}}</td>
+  </tr>{{end}}
+  </tbody>
+</table></div>
+{{else if .Q}}<p class="empty">Nobody matches "{{.Q}}".</p>
+{{else}}<p class="empty">Nobody has registered yet. Register in Discord with /fairshare.</p>{{end}}
+{{end}}{{end}}

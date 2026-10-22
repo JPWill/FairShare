@@ -1,0 +1,8 @@
+{{define "content"}}{{with .Data}}
+<section class="verify">
+  <h1>{{.Heading}}</h1>
+  <p class="lead wide {{if .OK}}pos{{end}}">{{.Text}}</p>
+  <p class="muted">Verification reads only your Discord id and the list of accounts you have connected to Discord. Nothing is stored except the Battle.net tag, and the site never shows it.</p>
+  <p><a class="btn alt" href="/">Back to the front page</a></p>
+</section>
+{{end}}{{end}}

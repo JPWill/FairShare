@@ -1,0 +1,23 @@
+{{define "content"}}{{with .Data}}
+<h1>Loot</h1>
+<p class="lead">Every item sold at auction in a settled raid. Voided sales are left out; transferred items show who ended up with them.</p>
+
+<form class="search" method="get" action="/loot">
+  <label for="q">Search by item or player</label>
+  <div><input id="q" name="q" type="search" value="{{.Q}}" maxlength="40" placeholder="Thunderfury, or a name"><button type="submit">Search</button>{{if .Q}} <a href="/loot">Clear</a>{{end}}</div>
+</form>
+
+{{if and (not .Q) .Biggest}}
+<section>
+  <h2>Biggest purchases</h2>
+  <div class="cards">{{range .Biggest}}<div class="card"><div>{{template "item" .Item}}</div><div class="v">{{.Price}} <span class="muted">shares</span></div><div class="muted">{{template "player" .Owner}}, {{date .Date}}</div></div>{{end}}</div>
+</section>
+{{end}}
+
+<section>
+  {{if .Q}}<h2>Results for "{{.Q}}"</h2>{{else}}<h2>All loot</h2>{{end}}
+  {{if .Loot.Rows}}{{template "loottable" .Loot}}{{template "pager" .Pager}}
+  {{else if .Q}}<p class="empty">Nothing matches "{{.Q}}".</p>
+  {{else}}<p class="empty">No loot sold yet.</p>{{end}}
+</section>
+{{end}}{{end}}

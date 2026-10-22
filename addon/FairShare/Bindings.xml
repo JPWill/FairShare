@@ -1,0 +1,5 @@
+<Bindings>
+  <Binding name="FAIRSHARE_TOGGLE" header="FAIRSHARE" category="ADDONS">
+    FairShare_ToggleWindow()
+  </Binding>
+</Bindings>
