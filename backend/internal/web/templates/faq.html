@@ -5,8 +5,8 @@
 
 <div class="minute">
   <h2>In one minute</h2>
-  <ul>{{range .Summary}}<li>{{markdownBold .}}</li>{{end}}</ul>
-  <p class="cta">{{if $.Discord}}<a class="btn" href="{{$.Discord}}" rel="noopener">Join us on Discord</a> {{end}}<a class="btn alt" href="/rules">The rules</a></p>
+  <a class="howto-link" href="/static/how-bidding-works@2x.png" title="Open full size"><img class="howto" src="/static/how-bidding-works@1x.png" srcset="/static/how-bidding-works@1x.png 1x, /static/how-bidding-works@2x.png 2x" width="1200" height="1340" alt="How a FairShare auction works, in four steps. One: loot drops, the leader clicks once to auction it, and everyone with the addon gets a bid window and 20 seconds. Two: everyone bids in secret; your addon sends a locked bid that nobody can see, not even the leader. Three: every raider's addon unlocks every bid and works out the winner on its own, so nobody can fake a result. Four: the winner pays the second-highest bid. In the example, bids of 260, 200 and 90: the winner pays 200, not 260. 180 is split across all 20 raiders, 9 shares each, and 20 goes to the performance bonus, so the winner is down 191 and everyone else is up 9. No gold, ever."></a>
+  <p class="cta">{{if $.Discord}}<a class="btn" href="{{$.Discord}}" rel="noopener">{{template "discordIcon"}}Join us on Discord</a> {{end}}<a class="btn alt" href="/rules">The rules</a></p>
 </div>
 
 {{range .Sections}}

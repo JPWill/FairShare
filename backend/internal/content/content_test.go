@@ -94,7 +94,4 @@ func TestSectionsCoverEveryQuestion(t *testing.T) {
 			t.Errorf("%s appears %d times in the sections", qa.ID, seen[qa.ID])
 		}
 	}
-	if len(defaults.Summary()) != 4 {
-		t.Errorf("summary has %d lines", len(defaults.Summary()))
-	}
 }

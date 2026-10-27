@@ -28,4 +28,6 @@ ignore:
   - .pkgmeta
   - addon/README.md
   - addon/FairShare/README.md
+  - addon/FairShare/Lib/README.md
+  - addon/FairShare/Media/README.md
   - addon/FairShare/Data.lua

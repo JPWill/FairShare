@@ -45,8 +45,9 @@ nav a.on { background: var(--panel-2); color: var(--bronze-2); box-shadow: inset
 .banner { background: #4a3514; color: #f3d8a8; border-bottom: 1px solid #6b4d1d; padding: .5rem 0; font-size: .9rem; }
 .banner.demo { background: #1d3324; color: #cfe9d4; border-bottom-color: #2f5b3a; }
 
-main { padding-bottom: 3rem; }
-footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 1.5rem; padding-bottom: 2rem; margin-top: 3rem; }
+/* main.wrap and footer.wrap: plain main or footer would lose to .wrap's margin and padding. */
+main.wrap { padding-bottom: 1rem; }
+footer.wrap { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 1.75rem; padding-bottom: 2.5rem; margin-top: 2.5rem; }
 
 .hero { margin: 1.5rem 0 1rem; }
 .hero h1 { margin: 0 0 .3rem; color: var(--bronze-2); }
@@ -151,18 +152,18 @@ th a.sort.on.desc::after { content: " \2193"; }
 
 /* Calls to action and the Discord link */
 .cta { display: flex; gap: .6rem; flex-wrap: wrap; margin: 0 0 1rem; }
-.btn { display: inline-block; padding: .55rem 1.1rem; border-radius: 8px; border: 1px solid var(--bronze); background: var(--green); color: #fff; font-weight: 600; }
+.btn { display: inline-flex; align-items: center; padding: .55rem 1.1rem; border-radius: 8px; border: 1px solid var(--bronze); background: var(--green); color: #fff; font-weight: 600; }
 .btn:hover { filter: brightness(1.1); text-decoration: none; }
 .btn.alt { background: var(--panel-2); color: var(--bronze-2); }
-nav a.discord { color: var(--bronze-2); border: 1px solid var(--bronze); margin-left: .6rem; }
+nav a.discord { color: var(--bronze-2); border: 1px solid var(--bronze); margin-left: .6rem; display: inline-flex; align-items: center; }
+.ico { width: 1.15em; height: 1.15em; flex: none; fill: currentColor; margin-right: .45em; }
 footer .sep { margin: 0 .4rem; }
 
 /* How It Works: a one-minute summary, then cards by topic. Wide, scannable, no single column of prose. */
 .lead.wide { max-width: none; }
 .minute { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--bronze); border-radius: var(--radius); padding: 1rem 1.2rem; margin: 1rem 0 1.5rem; }
 .minute h2 { margin: 0 0 .5rem; }
-.minute ul { margin: 0; padding-left: 1.2rem; }
-.minute li { margin: .3rem 0; }
+.minute .howto { display: block; width: 100%; max-width: 760px; height: auto; margin: .2rem auto 0; border-radius: var(--radius); }
 .minute .cta { margin: .9rem 0 0; }
 .faq h2 { margin: 2.2rem 0 1rem; text-align: center; font-size: 1.5rem; }
 .faq .minute h2 { margin: 0 0 .6rem; text-align: left; font-size: 1.15rem; }

@@ -217,14 +217,3 @@ func (p Params) Sections() []Section {
 	}
 	return out
 }
-
-// Summary is the one-minute version at the top of How It Works.
-func (p Params) Summary() []string {
-	ex := p.Worked()
-	return []string{
-		fmt.Sprintf("Loot is auctioned for **shares**, our own points. Bids are sealed. The winner pays the second-highest bid, or the floor (%d, %d for a two-hander) if nobody else bid.", p.FloorDefault, p.Floor2H),
-		fmt.Sprintf("What the winner pays goes back to the raid: a %d-share sale in a %d-player raid pays everyone else %d. Nothing is minted; balances always sum to zero.", ex.Price, ex.Raiders, ex.Each),
-		fmt.Sprintf("Shares live on your Discord account and follow every character. New raiders start at zero with %d shares of credit, so you can bid on night one.", p.Newcomer),
-		"Every addon in the raid checks every auction, and the whole ledger is on this site. Nobody has to trust the leader.",
-	}
-}

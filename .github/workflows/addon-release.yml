@@ -55,19 +55,33 @@ jobs:
       - name: Offline addon tests
         run: cd tests/addon && go test ./...
 
+      - name: Tag matches the TOC version
+        if: github.event_name == 'push'
+        run: |
+          # The in-game version (ns.VERSION) is the TOC's; the site version is the tag. Keep them one.
+          toc=$(sed -n 's/^## Version: *//p' addon/FairShare/FairShare.toc | tr -d '\r')
+          if [ "v$toc" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match ## Version: $toc in FairShare.toc"
+            exit 1
+          fi
+
       - name: Release directory
         run: mkdir -p dist # the packager resolves -r with cd, so it must already exist
 
       - name: Package and upload
-        uses: BigWigsMods/packager@90e603be6bcdeff99fb7061105a36b829fa70970 # v2
+        uses: BigWigsMods/packager@e50a250f8705041e40f2fa1ddcb280a686d65aa0 # v2.6.1
         with:
           # -r dist: write the package under dist/ rather than the default .release/, because
           # upload-artifact skips hidden (dot) directories unless told otherwise.
-          args: -r ./dist ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '-d' || '' }}
+          # -n: zip FairShare-<tag>.zip and label <tag>. The packager's default adds a game type
+          # ("-forever") once the TOC lists a single non-retail interface; this never does.
+          args: -r ./dist -n '{package-name}-{project-version}:{project-version}' ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '-d' || '' }}
 
       - name: Keep the zip
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        # archive: false uploads the zip as it is, named after itself, instead of wrapping it
+        # in a second zip named after the artifact. Untagged runs carry the commit hash.
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: FairShare-addon
           path: dist/*.zip
+          archive: false
           if-no-files-found: error

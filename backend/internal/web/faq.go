@@ -25,7 +25,7 @@ func (s *Server) faq(w http.ResponseWriter, r *http.Request) {
 		Site: siteFromRequest(r), Discord: s.discordInvite(),
 	}
 	s.render(w, http.StatusOK, "faq", "How It Works", "faq", map[string]any{
-		"Summary": p.Summary(), "Sections": p.Sections(),
+		"Sections": p.Sections(),
 	})
 }
 

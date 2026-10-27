@@ -1,0 +1,166 @@
+<!doctype html>
+<!--
+  The "In one minute" picture on the website's How It Works page, and the image for community posts.
+  Its example numbers are fixed (20-second bids, 10% performance pool): re-render if those settings change.
+  Render from the repo root with Edge, then shrink to a 256-colour palette (Pillow) before committing:
+    msedge --headless=new --hide-scrollbars --force-device-scale-factor=1 --window-size=1200,1340 --screenshot=backend/internal/web/static/how-bidding-works@1x.png file:///<repo>/docs/brand/how-bidding-works.html
+    (and again with --force-device-scale-factor=2 for how-bidding-works@2x.png)
+  Every name and item in it is made up.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How Bidding Works</title>
+<style>
+  :root {
+    --bg: #11151b;
+    --panel: #1a2028;
+    --panel-2: #212833;
+    --line: #2c3540;
+    --bronze: #d19e5c;
+    --bronze-dim: #8a6a40;
+    --green: #2f5d3a;
+    --green-bright: #6cc07c;
+    --red: #e0735f;
+    --text: #ece6da;
+    --muted: #a9a196;
+    --epic: #b05cf0;
+    --rogue: #fff468;
+    --paladin: #f48cba;
+    --mage: #3fc7eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 1340px; overflow: hidden; }
+  body {
+    background: radial-gradient(ellipse at top, #18202a 0%, var(--bg) 60%);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    padding: 44px 56px 0;
+  }
+  header { display: flex; align-items: center; gap: 28px; margin-bottom: 30px; }
+  header img { width: 120px; height: 120px; border-radius: 16px; }
+  h1 { font-family: Georgia, serif; font-size: 54px; color: var(--bronze); line-height: 1.05; }
+  .sub { font-size: 26px; color: var(--muted); margin-top: 8px; }
+
+  .step {
+    display: grid; grid-template-columns: 76px minmax(0, 1fr) 430px; gap: 24px; align-items: center;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
+    padding: 24px 30px; margin-bottom: 18px; height: 250px;
+  }
+  .num {
+    width: 68px; height: 68px; border-radius: 50%; background: var(--green);
+    border: 3px solid var(--bronze); color: var(--text);
+    font-family: Georgia, serif; font-size: 36px; font-weight: bold;
+    display: flex; align-items: center; justify-content: center;
+  }
+  h2 { font-family: Georgia, serif; font-size: 33px; white-space: nowrap; color: var(--bronze); margin-bottom: 10px; }
+  .step p { font-size: 25px; line-height: 1.35; color: var(--text); }
+  .step p em { color: var(--muted); font-style: normal; }
+
+  .vis { background: var(--panel-2); border-radius: 14px; padding: 18px 22px; height: 100%;
+         display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+
+  /* step 1 */
+  .item { font-size: 27px; font-weight: 600; color: var(--epic); }
+  .timer { display: flex; align-items: center; gap: 14px; font-size: 23px; color: var(--muted); }
+  .bar { flex: 1; height: 14px; border-radius: 7px; background: var(--line); overflow: hidden; }
+  .bar span { display: block; height: 100%; width: 65%; background: var(--bronze); }
+  .bidbox { display: flex; align-items: center; gap: 14px; }
+  .input { width: 130px; background: #0c0f13; border: 2px solid var(--bronze-dim); border-radius: 8px;
+           padding: 4px 12px; font-size: 26px; font-weight: 600; display: flex; align-items: center; }
+  .input i { display: inline-block; width: 2px; height: 26px; background: var(--text); margin-left: 3px; }
+  .max { font-size: 22px; color: var(--muted); flex: 1; }
+  .btn { background: var(--bronze); color: #1a1208; font-weight: 700;
+         font-size: 22px; padding: 8px 20px; border-radius: 8px; }
+
+  /* steps 2 and 3 */
+  .row { display: flex; align-items: center; justify-content: space-between; font-size: 24px;
+         padding: 4px 4px; border-bottom: 1px solid var(--line); }
+  .row:last-child { border-bottom: 0; }
+  .row b { font-weight: 600; }
+  .rogue { color: var(--rogue); } .paladin { color: var(--paladin); } .mage { color: var(--mage); }
+  .lock { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 22px; }
+  .bid { font-family: Georgia, serif; font-size: 28px; font-weight: bold; }
+  .check { color: var(--green-bright); font-size: 22px; margin-top: 4px; text-align: center; }
+
+  /* step 4 */
+  .pot { display: flex; height: 50px; border-radius: 10px; overflow: hidden; font-size: 21px; font-weight: 600; }
+  .pot .split { flex: 9; background: var(--green); display: flex; align-items: center; justify-content: center; }
+  .pot .perf { flex: 1.6; background: var(--bronze); color: #1a1208; display: flex; align-items: center; justify-content: center; }
+  .potlbl { display: flex; justify-content: space-between; font-size: 19px; color: var(--muted); }
+  .dots { display: flex; gap: 6px; justify-content: space-between; }
+  .dots i { width: 17px; height: 17px; border-radius: 50%; background: var(--green-bright); display: block; }
+  .dots i.w { background: var(--rogue); }
+  .result { display: flex; justify-content: space-between; font-size: 22px; white-space: nowrap; margin-top: 2px; }
+  .neg { color: var(--red); font-weight: 700; } .pos { color: var(--green-bright); font-weight: 700; }
+
+  footer { text-align: center; margin-top: 22px; font-size: 26px; color: var(--muted); }
+  footer b { color: var(--bronze); font-family: Georgia, serif; font-size: 28px; }
+</style>
+</head>
+<body>
+  <header>
+    <img src="FairShare-icon.jpg" alt="">
+    <div>
+      <h1>How a FairShare auction works</h1>
+      <div class="sub">Sealed bids. Winner pays second price. The pot goes back to the raid.</div>
+    </div>
+  </header>
+
+  <section class="step">
+    <div class="num">1</div>
+    <div>
+      <h2>Loot drops</h2>
+      <p>The leader clicks once to auction it. Everyone with the addon gets a bid window and 20 seconds.</p>
+    </div>
+    <div class="vis">
+      <div class="item">[Fang of the Fallen Pug]</div>
+      <div class="timer">0:13 <div class="bar"><span></span></div></div>
+      <div class="bidbox"><span class="input">260<i></i></span><span class="max">max 340</span><span class="btn">Bid</span></div>
+    </div>
+  </section>
+
+  <section class="step">
+    <div class="num">2</div>
+    <div>
+      <h2>Everyone bids in secret</h2>
+      <p>Your addon sends a locked bid. Nobody can see it. <em>Not the raid, not the leader.</em></p>
+    </div>
+    <div class="vis">
+      <div class="row"><b class="rogue">Stabbysnack</b><span class="lock">&#128274; locked</span></div>
+      <div class="row"><b class="paladin">Bubblehearth</b><span class="lock">&#128274; locked</span></div>
+      <div class="row"><b class="mage">Frostyflakes</b><span class="lock">&#128274; locked</span></div>
+    </div>
+  </section>
+
+  <section class="step">
+    <div class="num">3</div>
+    <div>
+      <h2>Everyone checks</h2>
+      <p>Every raider's addon unlocks every bid and works out the winner on its own. <em>Nobody can fake a result.</em></p>
+    </div>
+    <div class="vis">
+      <div class="row"><b class="rogue">Stabbysnack</b><span class="bid">260</span></div>
+      <div class="row"><b class="paladin">Bubblehearth</b><span class="bid">200</span></div>
+      <div class="row"><b class="mage">Frostyflakes</b><span class="bid">90</span></div>
+      <div class="check">&#10003; all 20 addons agree</div>
+    </div>
+  </section>
+
+  <section class="step">
+    <div class="num">4</div>
+    <div>
+      <h2>Winner pays 2nd price</h2>
+      <p>Stabbysnack wins and pays <b>200</b>, not 260. That 200 goes back to the raid, like a GDKP pot.</p>
+    </div>
+    <div class="vis">
+      <div class="pot"><div class="split">180 split by all 20</div><div class="perf">20</div></div>
+      <div class="potlbl"><span>9 shares each</span><span>performance bonus</span></div>
+      <div class="dots"><i class="w"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="result"><span><b class="rogue">Stabbysnack</b> <span class="neg">&minus;191</span></span><span>Everyone else <span class="pos">+9</span></span></div>
+    </div>
+  </section>
+
+  <footer><b>No gold, ever.</b> &nbsp;Every item, price and balance is public at fairsharewow.com</footer>
+</body>
+</html>
