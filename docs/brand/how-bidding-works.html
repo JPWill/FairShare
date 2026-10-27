@@ -2,8 +2,11 @@
 <!--
   The "In one minute" picture on the website's How It Works page, and the image for community posts.
   Its example numbers are fixed (20-second bids, 10% performance pool): re-render if those settings change.
-  Render from the repo root with Edge, then shrink to a 256-colour palette (Pillow) before committing:
-    msedge --headless=new --hide-scrollbars --force-device-scale-factor=1 --window-size=1200,1340 --screenshot=backend/internal/web/static/how-bidding-works@1x.png file:///<repo>/docs/brand/how-bidding-works.html
+  Two renders with Edge. For posts, the whole card (1200x1340):
+    msedge --headless=new --hide-scrollbars --force-device-scale-factor=2 --window-size=1200,1340 --screenshot=<out>.png file:///<repo>/docs/brand/how-bidding-works.html
+  For the website, only the four steps (#web), 1200x1054, at scale 1 and 2, then shrink to a
+  256-colour palette (Pillow) before committing:
+    msedge --headless=new --hide-scrollbars --force-device-scale-factor=1 --window-size=1200,1054 --screenshot=backend/internal/web/static/how-bidding-works@1x.png "file:///<repo>/docs/brand/how-bidding-works.html#web"
     (and again with --force-device-scale-factor=2 for how-bidding-works@2x.png)
   Every name and item in it is made up.
 -->
@@ -95,6 +98,12 @@
   .neg { color: var(--red); font-weight: 700; } .pos { color: var(--green-bright); font-weight: 700; }
 
   footer { text-align: center; margin-top: 22px; font-size: 26px; color: var(--muted); }
+
+  /* #web: the website's copy. The page around it has the title and the links, so only the
+     four steps, flat on the site's background (--bg in site.css). */
+  body.web { padding: 0; background: #121417; }
+  body.web header, body.web footer { display: none; }
+  body.web .step:last-of-type { margin-bottom: 0; }
   footer b { color: var(--bronze); font-family: Georgia, serif; font-size: 28px; }
 </style>
 </head>
@@ -162,5 +171,6 @@
   </section>
 
   <footer><b>No gold, ever.</b> &nbsp;Every item, price and balance is public at fairsharewow.com</footer>
+<script>if (location.hash === "#web") document.body.classList.add("web");</script>
 </body>
 </html>

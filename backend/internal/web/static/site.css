@@ -159,14 +159,11 @@ nav a.discord { color: var(--bronze-2); border: 1px solid var(--bronze); margin-
 .ico { width: 1.15em; height: 1.15em; flex: none; fill: currentColor; margin-right: .45em; }
 footer .sep { margin: 0 .4rem; }
 
-/* How It Works: a one-minute summary, then cards by topic. Wide, scannable, no single column of prose. */
+/* How It Works: the auction picture, then cards by topic. Wide, scannable, no single column of prose. */
 .lead.wide { max-width: none; }
-.minute { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--bronze); border-radius: var(--radius); padding: 1rem 1.2rem; margin: 1rem 0 1.5rem; }
-.minute h2 { margin: 0 0 .5rem; }
-.minute .howto { display: block; width: 100%; max-width: 760px; height: auto; margin: .2rem auto 0; border-radius: var(--radius); }
-.minute .cta { margin: .9rem 0 0; }
+.howto { margin: 1.2rem 0 1rem; }
+.howto img { display: block; width: 100%; height: auto; border-radius: var(--radius); }
 .faq h2 { margin: 2.2rem 0 1rem; text-align: center; font-size: 1.5rem; }
-.faq .minute h2 { margin: 0 0 .6rem; text-align: left; font-size: 1.15rem; }
 .rules-page ol.rules { margin: 1rem 0; padding-left: 1.6rem; max-width: 80ch; }
 .rules-page ol.rules li { margin: 0 0 .8rem; line-height: 1.55; }
 .rules-page .outro { color: var(--muted); max-width: 80ch; }

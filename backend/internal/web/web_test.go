@@ -112,7 +112,7 @@ func TestPages(t *testing.T) {
 		{"/players", []string{"Alice", "Alicealt", "Leadpal"}},
 		{"/players/Alice", []string{"Raid history", "Thursday MC", "Alicealt", ", then", "Can bid up to", "Thunderfury", "Bought an item", "Share of a sale", "Average percentile"}},
 		{"/players/Alicealt", []string{"Alice", "Thunderfury"}},
-		{"/faq", []string{"How It Works", "Is this GDKP?", "two-handed weapon", "second price", "In one minute"}},
+		{"/faq", []string{"How It Works", "Is this GDKP?", "two-handed weapon", "second price", "how-bidding-works@1x.png?v="}},
 		{"/rules", []string{"The Rules", "One person, one account", "two-handed weapon", "Won it, wear it"}},
 	}
 	for _, c := range cases {

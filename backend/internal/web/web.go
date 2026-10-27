@@ -9,7 +9,9 @@
 package web
 
 import (
+	"crypto/sha256"
 	"embed"
+	"encoding/hex"
 	"fmt"
 	"html/template"
 	"io/fs"
@@ -34,6 +36,37 @@ var templateFS embed.FS
 
 //go:embed static
 var staticFS embed.FS
+
+// assetVersions maps each static file to the start of its SHA-256. Static files are cached
+// for a day, so pages link them as /static/<name>?v=<hash>: a new build changes the link
+// and every browser fetches the new file at once instead of pairing new pages with an old
+// stylesheet.
+var assetVersions = func() map[string]string {
+	v := map[string]string{}
+	_ = fs.WalkDir(staticFS, "static", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		b, err := staticFS.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		sum := sha256.Sum256(b)
+		v[strings.TrimPrefix(path, "static/")] = hex.EncodeToString(sum[:5])
+		return nil
+	})
+	return v
+}()
+
+// asset is the versioned link to a static file. An unknown name fails the page render,
+// so a typo shows up in tests rather than as a broken link.
+func asset(name string) (string, error) {
+	v, ok := assetVersions[name]
+	if !ok {
+		return "", fmt.Errorf("no static file %q", name)
+	}
+	return "/static/" + name + "?v=" + v, nil
+}
 
 // Server renders the site.
 type Server struct {
@@ -194,6 +227,7 @@ func parseItem(link string) Item {
 }
 
 var funcs = template.FuncMap{
+	"asset":        asset,
 	"item":         parseItem,
 	"dict":         dict,
 	"sortURL":      sortURL,
